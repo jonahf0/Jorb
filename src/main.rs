@@ -1,25 +1,29 @@
 mod handlers;
 mod types;
+mod worker_handling;
 
-use actix_web::{web, App, HttpServer};
+use handlers::*;
+use types::*;
+use worker_handling::*;
+
 use actix_web::middleware::Logger;
-use handlers::{cancel_job, submit_job};
+use actix_web::{rt, web, App, HttpServer};
 use std::collections::HashMap;
 use std::sync::Mutex;
-use types::*;
 
 #[actix_web::main]
 async fn main() -> std::io::Result<()> {
-    
     //starts logging to terminal
     env_logger::init_from_env(env_logger::Env::new().default_filter_or("info"));
-    
+
     //create an instance of AppState;
-    let state_data = web::Data::new( AppState {
+    let state_data = web::Data::new(AppState {
         job_queue: Mutex::new(HashMap::new()),
 
         workers_info: Mutex::new(HashMap::new()),
     });
+
+    rt::spawn( handle_connection_with_workers() );
 
     //run the server with the appropriate routes
     HttpServer::new(move || {
