@@ -12,7 +12,7 @@ pub async fn submit_job(state: web::Data<AppState>, job_info: web::Json<JobInfo>
         if let Ok(ref mut mutex) = queue {
             job_info_uuid = Uuid::new_v4();
 
-            mutex.insert(job_info_uuid, job_info);
+            mutex.push((job_info_uuid, job_info));
 
             break;
         }
@@ -26,15 +26,20 @@ pub async fn cancel_job(
     state: web::Data<AppState>,
     job_uuid_string: web::Path<String>,
 ) -> HttpResponse {
+
+    //get the uuid that was used
     let job_uuid = Uuid::parse_str(&job_uuid_string).unwrap();
 
     loop {
         let mut queue = state.job_queue.try_lock();
 
         if let Ok(ref mut mutex) = queue {
-            //mutex.push(job_info);
-            if mutex.contains_key(&job_uuid) {
-                mutex.remove_entry(&job_uuid);
+        
+            //search for the item; if it's there, then get rid of it
+            let index = mutex.iter().position(|item| item.0 == job_uuid);
+
+            if let Some(val) = index {
+                mutex.remove(val);
             }
 
             break;

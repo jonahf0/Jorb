@@ -1,27 +1,22 @@
-use actix_web::rt;
+use crate::types::{AppState, JobInfo, WorkerInfo};
+
+use actix_web::{rt, web};
 use reqwest::blocking;
+use uuid::Uuid;
 
-fn send_info_to_work() {
-
-}
-
-pub async fn handle_connection_to_workers() {
-    
-    
-
+pub async fn handle_connection_to_workers(state_data: web::Data<AppState>) {
     loop {
+        let mut queue = state_data.job_queue.try_lock();
 
-        /*
-        let client = blocking::Client::new().post("http://127.0.0.1:8080/job/new");
-    
-        rt::spawn( 
-        async {
-            let x = client.send();
+        if let Ok(ref mut mutex) = queue {
 
-            println!("{:?}", x.unwrap())
+            if let Some(info) = mutex.pop() {
+                send_info(info).await
+            }
         }
-    
-        );
-        */
     }
 }
+
+async fn send_info(info: (Uuid, web::Json<JobInfo>)) {}
+
+async fn find_worker_info(workers: Vec<WorkerInfo>) {}

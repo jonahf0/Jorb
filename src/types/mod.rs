@@ -1,13 +1,12 @@
 use actix_web::web;
 use serde::Deserialize;
-use std::collections::HashMap;
-use std::sync::{Mutex, Arc};
+use std::sync::{Arc, Mutex};
 use uuid::Uuid;
 
 pub struct AppState {
-    pub job_queue: Mutex<HashMap<Uuid, web::Json<JobInfo>>>,
+    pub job_queue: Arc<Mutex<Vec<(Uuid, web::Json<JobInfo>)>>>,
 
-    pub workers_info: Arc<Mutex<HashMap<Uuid, web::Json<WorkerInfo>>>>,
+    pub workers_info: Arc<Mutex<Vec<web::Json<WorkerInfo>>>>,
 }
 
 #[derive(Deserialize)]
