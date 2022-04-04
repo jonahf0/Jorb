@@ -12,7 +12,7 @@ pub async fn submit_job(state: web::Data<AppState>, job_info: web::Json<JobInfo>
         if let Ok(ref mut mutex) = queue {
             job_info_uuid = Uuid::new_v4();
 
-            mutex.push((job_info_uuid, job_info));
+            mutex.push(job_info_uuid, job_info);
 
             break;
         }

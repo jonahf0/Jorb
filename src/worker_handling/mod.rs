@@ -17,6 +17,9 @@ pub async fn handle_connection_to_workers(state_data: web::Data<AppState>) {
     }
 }
 
-async fn send_info(info: (Uuid, web::Json<JobInfo>)) {}
+async fn send_info(info: (Uuid, web::Json<JobInfo>)) {
+    println!("{:?}", info.1.arguments);
+    println!("{:?}", info.1.name);
+}
 
 async fn find_worker_info(workers: Vec<WorkerInfo>) {}
