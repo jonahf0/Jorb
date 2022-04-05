@@ -1,8 +1,7 @@
-use actix_web::web;
 use serde::{Deserialize, Serialize};
-use std::sync::{Arc, Mutex};
+//use std::sync::{Arc, Mutex};
 use uuid::Uuid;
-use leveldb::database::Database;
+use sled::Tree;
 
 /*
 pub struct AppState {
@@ -12,8 +11,8 @@ pub struct AppState {
 }
 */
 pub struct AppState {
-    pub job_queue: Arc<Mutex<Database<i32>>>,
-    pub worker_info:  Arc<Mutex<Database<i32>>>
+    pub job_queue: Tree,
+    pub worker_info: Tree
 }
 
 #[derive(Serialize, Deserialize)]
