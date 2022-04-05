@@ -16,21 +16,21 @@ async fn main() -> std::io::Result<()> {
     //starts logging to terminal
     env_logger::init_from_env(env_logger::Env::new().default_filter_or("info"));
 
-    //these two lines are pretty dense, but basically create a vector that will contain
-    //UUID and JobInfo pairs
-    //let workers_info_arc: Arc<Mutex<Vec<web::Json<WorkerInfo>>>> = Arc::new(Mutex::new(Vec::new()));
-
-    //let job_queue_arc: Arc<Mutex<Vec<(Uuid, web::Json<JobInfo>)>>> =
-    //    Arc::new(Mutex::new(Vec::new()));
-
-    let mut jorb_db = match open("jorb.db") {
+    //open the db
+    let jorb_db = match open("jorb.db") {
         Ok(db) => { db },
         Err(e) => { panic!("failed to open jorb.db: {:?}", e) }
     };
 
+    //open each of the trees
     let job_queue = match jorb_db.open_tree("job_queue") {
         Ok(tree) => { tree },
         Err(e) => { panic!("failed to open job_queue: {:?}", e) }
+    };
+
+    let results = match jorb_db.open_tree("results_tree") {
+        Ok(tree) => { tree },
+        Err(e) => { panic!("failed to open results_tree: {:?}", e) }
     };
 
     let worker_info = match jorb_db.open_tree("worker_info") {
@@ -38,17 +38,13 @@ async fn main() -> std::io::Result<()> {
         Err(e) => { panic!("failed to open worker_info: {:?}", e) }
     };
 
-    //let job_queue_arc: Arc<Mutex<Db>> = Arc::new(Mutex::new(job_queue));
-
-    //let worker_info_arc: Arc<Mutex<Db>> = Arc::new(Mutex::new(worker_info));
-
-    println!("{:?}", std::time::Instant::now());
-
     //create an instance of AppState;
     let state_data = web::Data::new(AppState {
-        job_queue: job_queue,
+        job_queue,
 
-        worker_info: worker_info,
+        worker_info,
+
+        results
     });
 
     rt::spawn(handle_connection_to_workers(state_data.clone()));

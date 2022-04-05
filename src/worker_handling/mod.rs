@@ -5,6 +5,7 @@ use reqwest::blocking;
 use uuid::Uuid;
 
 pub async fn handle_connection_to_workers(state_data: web::Data<AppState>) {
+    /*
     loop {
         let mut queue = state_data.job_queue.try_lock();
 
@@ -14,7 +15,7 @@ pub async fn handle_connection_to_workers(state_data: web::Data<AppState>) {
                 send_info(info).await
             }
         }
-    }
+    }*/
 }
 
 async fn send_info(info: (Uuid, web::Json<JobInfo>)) {
