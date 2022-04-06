@@ -1,4 +1,4 @@
-use crate::types::{AppState, JobInfo, WorkerInfo};
+use crate::jorb_lib::types::{AppState, JobInfo, WorkerInfo};
 
 use actix_web::{rt, web};
 use reqwest::blocking;

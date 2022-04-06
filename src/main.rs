@@ -1,14 +1,11 @@
-mod handlers;
-mod types;
-mod worker_handling;
+mod jorb_lib;
 
-use handlers::*;
-use types::*;
-use worker_handling::*;
+use jorb_lib::handlers::*;
+use jorb_lib::types::*;
+use jorb_lib::worker_handling::*;
 
 use actix_web::middleware::Logger;
 use actix_web::{rt, web, App, HttpServer};
-//use std::sync::{Arc, Mutex};
 use sled::open;
 
 #[actix_web::main]
@@ -19,23 +16,31 @@ async fn main() -> std::io::Result<()> {
     //open the db
     let jorb_db = match open("jorb.db") {
         Ok(db) => { db },
-        Err(e) => { panic!("failed to open jorb.db: {:?}", e) }
+        Err(e) => { panic!("Failed to open jorb.db: {:?}", e) }
     };
+
+    match jorb_db.checksum() {
+
+        Ok(num) => { println!("CRC32: {}", num) },
+
+        Err(e) => { panic!("Error during CRC32: {:?}", e) }
+
+    }
 
     //open each of the trees
     let job_queue = match jorb_db.open_tree("job_queue") {
         Ok(tree) => { tree },
-        Err(e) => { panic!("failed to open job_queue: {:?}", e) }
+        Err(e) => { panic!("Failed to open job_queue: {:?}", e) }
     };
 
     let results = match jorb_db.open_tree("results_tree") {
         Ok(tree) => { tree },
-        Err(e) => { panic!("failed to open results_tree: {:?}", e) }
+        Err(e) => { panic!("Failed to open results_tree: {:?}", e) }
     };
 
     let worker_info = match jorb_db.open_tree("worker_info") {
         Ok(tree) => { tree },
-        Err(e) => { panic!("failed to open worker_info: {:?}", e) }
+        Err(e) => { panic!("Failed to open worker_info: {:?}", e) }
     };
 
     //create an instance of AppState;
