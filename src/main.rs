@@ -61,6 +61,7 @@ async fn main() -> std::io::Result<()> {
             .app_data(state_data.clone())
             .route("/job/new", web::post().to(submit_job))
             .route("/job/cancel/{uuid}", web::post().to(cancel_job))
+            .route("/job", web::get().to(inspect_tree))
     })
     .bind("127.0.0.1:8080")?
     .run()
